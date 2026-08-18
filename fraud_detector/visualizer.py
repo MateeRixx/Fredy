@@ -126,7 +126,7 @@ class FraudVisualizer:
             Path to the saved image, or ``None``.
         """
         fpr, tpr, _ = roc_curve(y_true, y_scores)
-        auc_val = np.trapz(tpr, fpr)
+        auc_val = np.trapezoid(tpr, fpr)
 
         fig, ax = plt.subplots(figsize=(7, 6))
         ax.plot(

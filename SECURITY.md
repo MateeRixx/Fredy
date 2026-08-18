@@ -13,7 +13,7 @@ Only the latest release on the `master` branch receives security updates.
 
 If you discover a security vulnerability in the Fraud Detection System, please report it responsibly. **Do not open a public GitHub issue for security vulnerabilities.**
 
-**Email:** [bishitaofik@gmail.com](mailto:bishitaofik@gmail.com)
+**Email:** security@example.com
 
 Include in your report:
 

@@ -29,6 +29,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     roc_auc_score,
+    roc_curve,
 )
 from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
 
@@ -49,6 +50,8 @@ class ModelMetrics:
     feature_importances: dict[str, float] = field(default_factory=dict)
     precision_curve: Optional[np.ndarray] = None
     recall_curve: Optional[np.ndarray] = None
+    roc_fpr: Optional[np.ndarray] = None
+    roc_tpr: Optional[np.ndarray] = None
     split_method: str = "random"
 
     def summary(self) -> str:
@@ -201,6 +204,9 @@ class FraudModel:
         # Precision-recall curve
         pr_precision, pr_recall, _ = precision_recall_curve(y_test, y_proba)
 
+        # ROC curve
+        roc_fpr, roc_tpr, _ = roc_curve(y_test, y_proba)
+
         metrics = ModelMetrics(
             accuracy=float(accuracy_score(y_test, y_pred)),
             precision=float(precision_score(y_test, y_pred, zero_division=0)),
@@ -214,6 +220,8 @@ class FraudModel:
             ),
             precision_curve=pr_precision,
             recall_curve=pr_recall,
+            roc_fpr=roc_fpr,
+            roc_tpr=roc_tpr,
             split_method=split_method,
         )
 

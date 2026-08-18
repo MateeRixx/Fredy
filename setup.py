@@ -13,12 +13,9 @@ with open("requirements.txt", encoding="utf-8") as f:
 setup(
     name="fraud-detection-system",
     version="2.0.0",
-    author="Taofik Bishi",
-    author_email="taofik.bishi@example.com",
     description="ML-based financial fraud detection system combining supervised and unsupervised learning",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/taofikbishi/fraud-detection-system",
     packages=find_packages(),
     python_requires=">=3.10",
     install_requires=requirements,

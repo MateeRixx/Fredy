@@ -101,6 +101,23 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Web Console (Recommended)
+
+A modern, dark terminal-grade UI for operating the whole pipeline. Built with FastAPI + React.
+
+```bash
+# 1. Install backend + build the UI
+pip install -r requirements.txt
+pip install fastapi uvicorn python-multipart
+cd web && npm install && npm run build && cd ..
+
+# 2. Start the server
+python run_server.py
+# Open http://127.0.0.1:8000
+```
+
+The console exposes five screens: **Command** (overview/KPIs), **Transactions** (live scoring + drill-down), **Alerts** (analyst workflow queue), **Model** (training config + metrics), and **Benchmarks**.
+
 ### Real Data Pipeline (ULB Dataset)
 
 ```bash
@@ -191,6 +208,15 @@ fraud-detection-system/
 |   |-- visualizer.py            # Matplotlib visualizations
 |   |-- cli.py                   # Command-line interface
 |
+|-- server/                      # FastAPI backend
+|   |-- app.py                   # API routes + static UI serving
+|   |-- state.py                 # Session state (model, detector, alerts)
+|   |-- schemas.py               # Pydantic request models
+|
+|-- web/                         # React + Tailwind frontend
+|   |-- src/                     # Pages, components, charts
+|   |-- dist/                    # Built assets (served by server/app.py)
+|
 |-- data/
 |   |-- generate_dataset.py      # Synthetic data generator
 |   |-- sample_transactions.csv  # 1,000-row demo dataset
@@ -201,7 +227,8 @@ fraud-detection-system/
 |   |-- BENCHMARKS.md            # Results documentation
 |
 |-- tests/                       # 67 unit tests
-|-- main.py                      # End-to-end demo pipeline
+|-- main.py                      # End-to-end CLI demo pipeline
+|-- run_server.py                # Web console launcher
 |-- requirements.txt
 |-- setup.py
 |-- LICENSE
@@ -223,9 +250,9 @@ fraud-detection-system/
 - [ ] **Graph features** — Network analysis of merchant-customer transaction graphs
 - [ ] **Online learning** — Incremental model updates as new labeled data arrives
 - [ ] **REST API** — FastAPI service for production deployment with async scoring
-- [ ] **Dashboard** — Real-time monitoring dashboard with Streamlit or Dash
 - [ ] **Explainability** — SHAP values for per-transaction feature attribution
 - [ ] **Drift detection** — Monitor for data/concept drift in production scoring
+- [ ] **Live streaming** — WebSocket push of real-time scored transactions
 - [ ] **IEEE-CIS dataset** — Add support for the larger IEEE-CIS Fraud Detection dataset
 
 ## License

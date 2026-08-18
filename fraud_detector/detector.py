@@ -111,13 +111,18 @@ class FraudDetector:
             List of ``ScoringResult`` objects, one per row.
         """
         processed = self._preprocessor.transform(df)
-        featured = self._feature_engineer.transform(processed)
+        if self._feature_engineer is not None:
+            processed = self._feature_engineer.transform(processed)
+        featured = processed
 
         # Build feature matrix
-        all_features = (
-            self._preprocessor.get_feature_columns()
-            + self._feature_engineer.get_feature_columns()
-        )
+        if self._feature_engineer is not None:
+            all_features = (
+                self._preprocessor.get_feature_columns()
+                + self._feature_engineer.get_feature_columns()
+            )
+        else:
+            all_features = self._preprocessor.get_feature_columns()
         available = [c for c in all_features if c in featured.columns]
         model_features = [
             c for c in self._model.feature_columns if c in available

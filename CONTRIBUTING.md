@@ -13,7 +13,7 @@ Thank you for your interest in contributing. This guide covers setting up the de
 ### Clone and Install
 
 ```bash
-git clone https://github.com/stabrea/fraud-detection-system.git
+git clone <your-repository-url>/fraud-detection-system.git
 cd fraud-detection-system
 
 # Create a virtual environment

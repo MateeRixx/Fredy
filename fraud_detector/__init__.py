@@ -9,12 +9,9 @@ Designed at the intersection of cybersecurity and finance.
 
 Supports both synthetic data and real-world datasets including the
 ULB Credit Card Fraud dataset from Kaggle.
-
-Author: Taofik Bishi
 """
 
 __version__ = "2.0.0"
-__author__ = "Taofik Bishi"
 
 from fraud_detector.preprocessor import TransactionPreprocessor
 from fraud_detector.feature_engineer import FeatureEngineer
