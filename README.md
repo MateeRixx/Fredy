@@ -1,5 +1,3 @@
-![CI](https://github.com/stabrea/fraud-detection-system/actions/workflows/ci.yml/badge.svg)
-
 # Fraud Detection System
 
 An end-to-end ML pipeline for detecting fraudulent financial transactions in real time. Built at the intersection of **cybersecurity** and **finance**, this system combines supervised classification (Random Forest) with unsupervised anomaly detection (Isolation Forest) to identify fraud patterns that neither approach catches alone.
@@ -88,7 +86,7 @@ See [benchmarks/BENCHMARKS.md](benchmarks/BENCHMARKS.md) for detailed analysis a
 
 ```bash
 # Clone the repository
-git clone https://github.com/stabrea/fraud-detection-system.git
+git clone <your-repository-url>/fraud-detection-system.git
 cd fraud-detection-system
 
 # Create virtual environment (recommended)
@@ -236,4 +234,5 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-*Built by [Taofik Bishi](https://github.com/stabrea) — Finance & Cybersecurity*
+*Built for the finance & cybersecurity domain*
+# Fredy
