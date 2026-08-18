@@ -1,11 +1,11 @@
-"""Tests for the FeatureEngineer pipeline."""
+﻿"""Tests for the FeatureEngineer pipeline."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from fraud_detector.preprocessor import TransactionPreprocessor
-from fraud_detector.feature_engineer import FeatureEngineer
+from app.core.preprocessor import TransactionPreprocessor
+from app.core.feature_engineer import FeatureEngineer
 
 
 def _make_preprocessed_df(n: int = 50) -> pd.DataFrame:

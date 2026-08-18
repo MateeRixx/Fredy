@@ -1,4 +1,4 @@
-"""
+﻿"""
 Alert generation and management for flagged transactions.
 
 Generates structured alerts, tracks false positive rates, and
@@ -15,7 +15,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from fraud_detector.detector import RiskLevel, ScoringResult
+from app.core.detector import RiskLevel, ScoringResult
 
 
 class AlertStatus(str, Enum):

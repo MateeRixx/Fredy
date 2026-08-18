@@ -1,4 +1,4 @@
-"""
+﻿"""
 Benchmark runner for the fraud detection system.
 
 Runs the full pipeline on the ULB Credit Card Fraud dataset (or
@@ -31,9 +31,9 @@ from sklearn.metrics import (
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fraud_detector.data_loader import load_dataset, generate_ulb_format_synthetic
-from fraud_detector.model import FraudModel
-from fraud_detector.ulb_preprocessor import ULBPreprocessor
+from app.core.data_loader import load_dataset, generate_ulb_format_synthetic
+from app.core.model import FraudModel
+from app.core.ulb_preprocessor import ULBPreprocessor
 
 
 def run_benchmark(

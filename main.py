@@ -1,4 +1,4 @@
-"""
+﻿"""
 Fraud Detection System — End-to-End Demo
 =========================================
 
@@ -23,12 +23,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from fraud_detector.alert_system import AlertSystem
-from fraud_detector.detector import FraudDetector
-from fraud_detector.feature_engineer import FeatureEngineer
-from fraud_detector.model import FraudModel
-from fraud_detector.preprocessor import TransactionPreprocessor
-from fraud_detector.visualizer import FraudVisualizer
+from app.core.alert_system import AlertSystem
+from app.core.detector import FraudDetector
+from app.core.feature_engineer import FeatureEngineer
+from app.core.model import FraudModel
+from app.core.preprocessor import TransactionPreprocessor
+from app.core.visualizer import FraudVisualizer
 
 
 def _divider(title: str) -> None:
@@ -57,8 +57,8 @@ def run_ulb_pipeline(
         output_dir: Directory for all output artifacts.
         use_smote: Whether to apply SMOTE on training set.
     """
-    from fraud_detector.data_loader import load_dataset
-    from fraud_detector.ulb_preprocessor import ULBPreprocessor
+    from app.core.data_loader import load_dataset
+    from app.core.ulb_preprocessor import ULBPreprocessor
 
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)

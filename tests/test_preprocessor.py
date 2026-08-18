@@ -1,10 +1,10 @@
-"""Tests for the TransactionPreprocessor pipeline."""
+﻿"""Tests for the TransactionPreprocessor pipeline."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from fraud_detector.preprocessor import TransactionPreprocessor
+from app.core.preprocessor import TransactionPreprocessor
 
 
 def _make_raw_df(n: int = 50) -> pd.DataFrame:

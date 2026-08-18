@@ -1,13 +1,13 @@
-"""Tests for the FraudDetector real-time scoring engine."""
+﻿"""Tests for the FraudDetector real-time scoring engine."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from fraud_detector.preprocessor import TransactionPreprocessor
-from fraud_detector.feature_engineer import FeatureEngineer
-from fraud_detector.model import FraudModel
-from fraud_detector.detector import FraudDetector, RiskLevel, ScoringResult
+from app.core.preprocessor import TransactionPreprocessor
+from app.core.feature_engineer import FeatureEngineer
+from app.core.model import FraudModel
+from app.core.detector import FraudDetector, RiskLevel, ScoringResult
 
 
 def _build_detector() -> tuple[FraudDetector, TransactionPreprocessor, FeatureEngineer]:

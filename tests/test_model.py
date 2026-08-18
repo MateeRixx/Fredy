@@ -1,12 +1,12 @@
-"""Tests for the FraudModel (RF + Isolation Forest hybrid)."""
+﻿"""Tests for the FraudModel (RF + Isolation Forest hybrid)."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from fraud_detector.preprocessor import TransactionPreprocessor
-from fraud_detector.feature_engineer import FeatureEngineer
-from fraud_detector.model import FraudModel, ModelMetrics
+from app.core.preprocessor import TransactionPreprocessor
+from app.core.feature_engineer import FeatureEngineer
+from app.core.model import FraudModel, ModelMetrics
 
 
 def _build_training_data(

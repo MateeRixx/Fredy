@@ -1,4 +1,4 @@
-"""
+﻿"""
 Real-time fraud detection scoring engine.
 
 Loads a trained model and scores incoming transactions, assigning
@@ -14,9 +14,9 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from fraud_detector.feature_engineer import FeatureEngineer
-from fraud_detector.model import FraudModel
-from fraud_detector.preprocessor import TransactionPreprocessor
+from app.core.feature_engineer import FeatureEngineer
+from app.core.model import FraudModel
+from app.core.preprocessor import TransactionPreprocessor
 
 
 class RiskLevel(str, Enum):

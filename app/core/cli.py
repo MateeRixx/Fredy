@@ -1,4 +1,4 @@
-"""
+﻿"""
 Command-line interface for the fraud detection system.
 
 Provides subcommands for training, scoring, generating data,
@@ -13,12 +13,12 @@ from pathlib import Path
 
 import pandas as pd
 
-from fraud_detector.alert_system import AlertSystem
-from fraud_detector.detector import FraudDetector
-from fraud_detector.feature_engineer import FeatureEngineer
-from fraud_detector.model import FraudModel
-from fraud_detector.preprocessor import TransactionPreprocessor
-from fraud_detector.visualizer import FraudVisualizer
+from app.core.alert_system import AlertSystem
+from app.core.detector import FraudDetector
+from app.core.feature_engineer import FeatureEngineer
+from app.core.model import FraudModel
+from app.core.preprocessor import TransactionPreprocessor
+from app.core.visualizer import FraudVisualizer
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Visualization utilities for fraud detection analysis.
 
 Generates publication-quality plots: confusion matrix, ROC curve,
@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_curve
 
-from fraud_detector.model import ModelMetrics
+from app.core.model import ModelMetrics
 
 
 class FraudVisualizer:

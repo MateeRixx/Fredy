@@ -1,11 +1,11 @@
-"""Tests for the ULB-specific preprocessor."""
+﻿"""Tests for the ULB-specific preprocessor."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from fraud_detector.data_loader import generate_ulb_format_synthetic
-from fraud_detector.ulb_preprocessor import ULBPreprocessor
+from app.core.data_loader import generate_ulb_format_synthetic
+from app.core.ulb_preprocessor import ULBPreprocessor
 
 
 def _make_ulb_df(n: int = 100) -> pd.DataFrame:
@@ -95,7 +95,7 @@ def test_transform_after_fit_same_columns():
 
 
 def test_preprocessor_output_compatible_with_model():
-    from fraud_detector.model import FraudModel
+    from app.core.model import FraudModel
 
     pp = ULBPreprocessor()
     df = _make_ulb_df(500)
@@ -108,7 +108,7 @@ def test_preprocessor_output_compatible_with_model():
 
 
 def test_temporal_split_with_ulb_data():
-    from fraud_detector.model import FraudModel
+    from app.core.model import FraudModel
 
     pp = ULBPreprocessor()
     df = _make_ulb_df(500)

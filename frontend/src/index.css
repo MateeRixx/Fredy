@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-ink-950 text-zinc-300 font-sans text-sm;
+  }
+  ::selection {
+    background: rgba(245, 184, 61, 0.25);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #243046 transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #243046;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-ink-850 border border-line rounded-md;
+  }
+  .panel-header {
+    @apply flex items-center justify-between px-4 h-9 border-b border-line bg-ink-900/60 rounded-t-md;
+  }
+  .panel-title {
+    @apply text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-zinc-500;
+  }
+  .num {
+    @apply font-mono tabular-nums;
+  }
+  .kicker {
+    @apply text-[0.6875rem] uppercase tracking-[0.16em] text-zinc-500 font-semibold;
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 px-3 h-8 rounded-md text-[0.75rem] font-medium
+           border border-line transition-colors duration-100 select-none
+           focus:outline-none focus:ring-1 focus:ring-signal-high disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-signal-high/10 border-signal-high/40 text-amber-400 hover:bg-signal-high/20;
+  }
+  .btn-solid {
+    @apply btn bg-signal-high text-ink-950 border-signal-high hover:bg-amber-400 font-semibold;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-zinc-400 hover:text-zinc-200 hover:bg-ink-700/50;
+  }
+  .btn-danger {
+    @apply btn bg-signal-fraud/10 border-signal-fraud/40 text-signal-fraud hover:bg-signal-fraud/20;
+  }
+  .input {
+    @apply bg-ink-900 border border-line rounded-md px-3 h-8 text-sm text-zinc-200
+           placeholder:text-zinc-600 focus:outline-none focus:border-signal-cyan/60
+           font-mono text-[0.8125rem];
+  }
+  .label {
+    @apply text-[0.6875rem] uppercase tracking-[0.14em] text-zinc-500 font-semibold;
+  }
+  .tbl {
+    @apply w-full text-[0.8125rem];
+  }
+  .tbl th {
+    @apply text-left px-3 py-2 text-[0.6875rem] uppercase tracking-[0.1em] text-zinc-500
+           border-b border-line bg-ink-900/70 sticky top-0 z-10 font-semibold whitespace-nowrap;
+  }
+  .tbl td {
+    @apply px-3 py-2 border-b border-line/60 whitespace-nowrap;
+  }
+  .tbl tr:hover td {
+    @apply bg-ink-700/30;
+  }
+  .badge {
+    @apply inline-flex items-center px-2 h-[18px] rounded-sm text-[0.6875rem] font-semibold uppercase tracking-wider font-mono;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Fraud Detection System
 =====================
 
@@ -13,14 +13,14 @@ ULB Credit Card Fraud dataset from Kaggle.
 
 __version__ = "2.0.0"
 
-from fraud_detector.preprocessor import TransactionPreprocessor
-from fraud_detector.feature_engineer import FeatureEngineer
-from fraud_detector.model import FraudModel
-from fraud_detector.detector import FraudDetector
-from fraud_detector.alert_system import AlertSystem
-from fraud_detector.visualizer import FraudVisualizer
-from fraud_detector.data_loader import load_dataset, load_ulb_credit_card
-from fraud_detector.ulb_preprocessor import ULBPreprocessor
+from app.core.preprocessor import TransactionPreprocessor
+from app.core.feature_engineer import FeatureEngineer
+from app.core.model import FraudModel
+from app.core.detector import FraudDetector
+from app.core.alert_system import AlertSystem
+from app.core.visualizer import FraudVisualizer
+from app.core.data_loader import load_dataset, load_ulb_credit_card
+from app.core.ulb_preprocessor import ULBPreprocessor
 
 __all__ = [
     "TransactionPreprocessor",

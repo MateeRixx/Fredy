@@ -1,10 +1,10 @@
-"""Tests for the data loader module."""
+﻿"""Tests for the data loader module."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from fraud_detector.data_loader import (
+from app.core.data_loader import (
     ULB_COLUMNS,
     detect_dataset_type,
     generate_ulb_format_synthetic,
