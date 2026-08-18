@@ -1,0 +1,7 @@
+# Railway deployment config (alternative to Render)
+# `railway up` will use this Dockerfile. PORT is injected by Railway.
+build = { dockerfile = "docker/production.Dockerfile" }
+
+[deploy]
+healthcheck_path = "/api/ready"
+start_command = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"

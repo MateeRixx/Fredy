@@ -1,68 +1,77 @@
-# Contributing to Fraud Detection System
+# Contributing to Fraud Command
 
-Thank you for your interest in contributing. This guide covers setting up the development environment, running tests, and submitting changes.
+Thank you for your interest in contributing. This guide covers setting up the
+development environment, running tests, and submitting changes.
 
 ## Development Setup
 
 ### Prerequisites
 
 - Python 3.10 or later
-- pip package manager
+- Node 18+ (for the React frontend)
 - Git
 
 ### Clone and Install
 
 ```bash
-git clone <your-repository-url>/fraud-detection-system.git
+git clone <your-repository-url>.git
 cd fraud-detection-system
 
-# Create a virtual environment
+# Backend
 python3 -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
+source .venv/bin/activate        # Linux/macOS
+# .venv\Scripts\activate         # Windows
+pip install -r requirements.txt -r requirements-dev.txt
 
-# Install dependencies
-pip install -r requirements.txt
+# Frontend
+cd frontend && npm install && npm run build && cd ..
 
-# Install the package in editable mode
-pip install -e .
+# Run the server
+python run_server.py             # → http://127.0.0.1:8000
 ```
 
-### Verify Setup
+For live-reload frontend development:
 
 ```bash
-# Run the demo pipeline with synthetic data
-python main.py --rows 1000
+cd frontend && npm run dev       # Vite dev server on :5173
 ```
 
 ## Running Tests
 
-Tests live in the `tests/` directory and use `pytest`.
-
 ```bash
-# Install test dependencies
-pip install pytest
-
-# Run the full test suite
-pytest tests/ -v
-
-# Run a specific test file
+pip install -r requirements-dev.txt
+pytest -q                        # full suite (unit + API integration)
 pytest tests/test_detector.py -v
-
-# Run with verbose output and full tracebacks
-pytest tests/ -v --tb=long
 ```
 
 All tests must pass before submitting a pull request.
 
 ## Code Style
 
-- **Type hints**: All functions must have complete type annotations. Use `from __future__ import annotations` for modern syntax.
-- **Docstrings**: Every public class and method needs a docstring. Follow the existing NumPy/Google style used throughout the codebase.
-- **Dataclasses**: Use `@dataclass` for structured data. Include a `to_dict()` method for serialization when the data will be output.
-- **Imports**: Group imports in the standard order -- stdlib, third-party, local -- separated by blank lines.
-- **Decimal precision**: Financial calculations should use `Decimal` or `numpy` with explicit rounding, not bare `float` arithmetic.
-- **No `Any` types**: Avoid `typing.Any`. Use specific types or generics.
+- **Type hints**: Complete annotations; use `from __future__ import annotations`.
+- **Docstrings**: Every public class and method needs one.
+- **Imports**: stdlib → third-party → local, separated by blank lines.
+- **No `typing.Any`**: Use specific types or generics.
+- **API routes**: Keep handlers thin; put business logic in `app/services/`.
+
+## Project Structure
+
+```
+app/               # Backend package
+├── main.py        # FastAPI app factory
+├── config.py      # pydantic-settings (.env)
+├── logging.py     # structured JSON logging
+├── state.py       # in-memory session state
+├── schemas.py     # request/response models
+├── api/           # routers (health, data, model, scoring, alerts, benchmark)
+├── services/      # business logic (training pipeline)
+└── core/          # ML engine (preprocessors, feature engineering, models)
+frontend/          # React + Vite + Tailwind console
+tests/             # unit + API integration tests
+benchmarks/        # honest benchmarking (temporal splits, ULB)
+docs/              # architecture, deployment, API reference
+docker/            # Dockerfiles + nginx
+```
 
 ## Submitting Changes
 
@@ -70,56 +79,21 @@ All tests must pass before submitting a pull request.
    ```bash
    git checkout -b feature/your-feature-name
    ```
-
-2. **Make your changes** in small, focused commits. Each commit should do one thing.
-
-3. **Run the test suite** and confirm all tests pass:
-   ```bash
-   pytest tests/ -v
-   ```
-
-4. **Test the full pipeline** to make sure nothing is broken end-to-end:
-   ```bash
-   python main.py --rows 1000
-   ```
-
-5. **Push** your branch and open a pull request against `main`.
-
-6. In your PR description, explain:
-   - What the change does
-   - Why it is needed
-   - How you tested it
-
-## Project Structure
-
-```
-fraud_detector/
-    __init__.py              # Public API exports
-    preprocessor.py          # Data cleaning and normalization
-    feature_engineer.py      # Behavioral feature generation
-    model.py                 # Random Forest + Isolation Forest training
-    detector.py              # Real-time scoring engine
-    alert_system.py          # Alert generation and tracking
-    visualizer.py            # Matplotlib visualizations
-    cli.py                   # Command-line interface
-tests/
-    test_preprocessor.py
-    test_feature_engineer.py
-    test_model.py
-    test_detector.py
-data/
-    generate_dataset.py      # Synthetic data generator
-    sample_transactions.csv  # Demo dataset
-```
+2. **Make your changes** in small, focused commits.
+3. **Run the test suite** and confirm all pass.
+4. **Push** and open a pull request against `main`.
+5. In the PR description, explain what, why, and how you tested.
 
 ## Areas for Contribution
 
-- Deep learning models (LSTM/Transformer) for sequential pattern detection
+- Model persistence / retraining scheduler
+- Streaming ingestion (Kafka) for real-time scoring at scale
 - SHAP-based explainability for per-transaction feature attribution
-- REST API service for production deployment
 - Data/concept drift detection in production scoring
+- Role-based access control for the analyst console
 - Additional test coverage for edge cases
 
 ## Questions
 
-Open an issue if you have questions or want to discuss a feature before starting work.
+Open an issue if you have questions or want to discuss a feature before
+starting work.

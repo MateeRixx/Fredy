@@ -2,9 +2,35 @@
 
 ## Prerequisites
 
-- Docker + Docker Compose v2
+- Docker + Docker Compose v2 (for the compose setup)
 - Node 18+ (only for local frontend builds)
 - Python 3.10+ (only for local backend)
+
+## Hosted free tier (live demo) — Render
+
+One click deploy (no local Docker needed):
+
+1. Push this repo to GitHub (public).
+2. Go to https://render.com → **New → Blueprint** → select the repo.
+3. Render reads `render.yaml` and creates a free web service using
+   `docker/production.Dockerfile` (builds the React UI, serves it from FastAPI).
+4. The service is live at `https://fraud-command.onrender.com`.
+
+- Health check: `/api/ready` (used automatically)
+- API docs: `/docs`
+- Metrics: `/metrics`
+
+> Free tier notes: 512MB RAM, and the service **sleeps after 15 min of
+> inactivity**. First visit after idle takes ~30-60s to wake (cold start).
+
+## Hosted free tier — Railway (alternative)
+
+```bash
+railway init
+railway up
+```
+
+`railway.toml` points at the same single-service Dockerfile.
 
 ## Production via Docker Compose
 

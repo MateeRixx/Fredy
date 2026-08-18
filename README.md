@@ -1,9 +1,17 @@
 # Fraud Command — Real-Time Fraud Detection System
 
+[![CI](https://github.com/MateeRixx/Fredy/actions/workflows/ci.yml/badge.svg)](https://github.com/MateeRixx/Fredy/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](#)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#)
+
 An end-to-end fraud detection platform for financial transactions: a hybrid
 **Random Forest + Isolation Forest** scoring engine, an analyst alert-triage
 workflow, a monitoring console, and full observability — packaged for
 production with Docker and CI.
+
+**Try the live demo:** https://fraud-command.onrender.com
+*(free tier — sleeps after 15 min idle, first visit takes ~30-60s to wake)*
 
 ```
 Raw Transactions → Preprocess → Feature Engineering → Model Training
@@ -115,12 +123,20 @@ Run fresh benchmarks with:
 - [x] Real-time scoring API + analyst alert workflow
 - [x] Web console (React)
 - [x] Docker + CI + observability
+- [x] Hosted live demo + open-source contribution flow
 - [ ] Model persistence / retraining scheduler
 - [ ] Role-based access control (RBAC)
 - [ ] Online model evaluation (drift detection)
 
+## Contributing
+
+We welcome contributions — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup,
+style, and PR guidance. All interactions follow our
+[Code of Conduct](CODE_OF_CONDUCT.md). Bug reports and feature requests use
+the [issue templates](.github/ISSUE_TEMPLATE/).
+
 ## License
 
-This project is released for demonstration and educational purposes.
-The ULB Credit Card Fraud dataset is available under the Open Database
-License (ODbL) v1.0.
+This project is released under the [MIT License](LICENSE) for demonstration
+and educational purposes. The ULB Credit Card Fraud dataset is available under
+the Open Database License (ODbL) v1.0.
