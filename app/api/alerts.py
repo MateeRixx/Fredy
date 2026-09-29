@@ -18,35 +18,37 @@ def list_alerts(
     risk: str | None = None,
 ):
     state = get_state()
-    if state.alert_system is None:
-        return {"alerts": [], "total": 0, "open": 0, "confirmed": 0, "false_positive": 0}
-    asys = state.alert_system
-    alerts = list(asys._alerts)  # noqa: SLF001
-    if status:
-        alerts = [a for a in alerts if a.status.value == status]
-    if risk:
-        alerts = [a for a in alerts if a.risk_level.value == risk]
-    alerts.sort(key=lambda a: a.hybrid_score, reverse=True)
-    return {
-        "alerts": [a.to_dict() for a in alerts[:limit]],
-        "total": len(alerts),
-        **_alert_counts(asys),
-    }
+    with state.lock():
+        if state.alert_system is None:
+            return {"alerts": [], "total": 0, "open": 0, "confirmed": 0, "false_positive": 0}
+        asys = state.alert_system
+        alerts = list(asys._alerts)  # noqa: SLF001
+        if status:
+            alerts = [a for a in alerts if a.status.value == status]
+        if risk:
+            alerts = [a for a in alerts if a.risk_level.value == risk]
+        alerts.sort(key=lambda a: a.hybrid_score, reverse=True)
+        return {
+            "alerts": [a.to_dict() for a in alerts[:limit]],
+            "total": len(alerts),
+            **_alert_counts(asys),
+        }
 
 
 @router.post("/{alert_id}/update")
 def update_alert(alert_id: str, req: UpdateAlertRequest):
     state = get_state()
-    if state.alert_system is None:
-        raise HTTPException(status_code=400, detail="No alert system initialized.")
-    try:
-        status = AlertStatus(req.status)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid status: {req.status}")
-    updated = state.alert_system.update_alert(alert_id, status, notes=req.notes or "")
-    if updated is None:
-        raise HTTPException(status_code=404, detail=f"Alert {alert_id} not found.")
-    return updated.to_dict()
+    with state.lock():
+        if state.alert_system is None:
+            raise HTTPException(status_code=400, detail="No alert system initialized.")
+        try:
+            status = AlertStatus(req.status)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid status: {req.status}")
+        updated = state.alert_system.update_alert(alert_id, status, notes=req.notes or "")
+        if updated is None:
+            raise HTTPException(status_code=404, detail=f"Alert {alert_id} not found.")
+        return updated.to_dict()
 
 
 def _alert_counts(asys: AlertSystem) -> dict:

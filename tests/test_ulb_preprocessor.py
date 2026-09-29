@@ -10,7 +10,10 @@ from app.core.ulb_preprocessor import ULBPreprocessor
 
 def _make_ulb_df(n: int = 100) -> pd.DataFrame:
     """Create a small ULB-format dataset for testing."""
-    return generate_ulb_format_synthetic(n_rows=n, seed=42)
+    # The real ULB fraud rate (0.172%) yields only one positive row for the
+    # small fixtures used here. Model integration tests need enough positives
+    # for both sides of a train/test split, so use a compact test distribution.
+    return generate_ulb_format_synthetic(n_rows=n, fraud_rate=0.02, seed=42)
 
 
 # ── Feature creation ───────────────────────────────────────────────

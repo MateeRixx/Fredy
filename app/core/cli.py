@@ -8,6 +8,7 @@ and producing reports.
 from __future__ import annotations
 
 import argparse
+import pickle
 import sys
 from pathlib import Path
 
@@ -155,6 +156,11 @@ def _cmd_train(args: argparse.Namespace) -> int:
 
     # Save
     model.save(args.output)
+    output_path = Path(args.output)
+    with open(output_path / "preprocessor.pkl", "wb") as f:
+        pickle.dump(preprocessor, f)
+    with open(output_path / "feature_engineer.pkl", "wb") as f:
+        pickle.dump(engineer, f)
     print(f"\nModel saved to {args.output}/")
     return 0
 
@@ -169,13 +175,11 @@ def _cmd_score(args: argparse.Namespace) -> int:
     df = pd.read_csv(args.data)
     print(f"  {len(df):,} transactions to score")
 
-    preprocessor = TransactionPreprocessor()
-    engineer = FeatureEngineer()
-
-    # For scoring we need to fit on the data (in production you'd
-    # persist and load the fitted preprocessor/engineer too)
-    df_processed = preprocessor.fit_transform(df)
-    df_featured = engineer.fit_transform(df_processed)
+    model_path = Path(args.model)
+    with open(model_path / "preprocessor.pkl", "rb") as f:
+        preprocessor = pickle.load(f)
+    with open(model_path / "feature_engineer.pkl", "rb") as f:
+        engineer = pickle.load(f)
 
     detector = FraudDetector(model, preprocessor, engineer)
     results = detector.score_batch(df)

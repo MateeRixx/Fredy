@@ -51,7 +51,11 @@ Browser ──▶ React (frontend/)
 hybrid_score = α · fraud_probability + (1 − α) · (1 − anomaly_score)
 ```
 
-Risk levels: `critical ≥ 0.80`, `high ≥ 0.65`, `medium ≥ 0.50`, else `low`.
+Risk levels: `critical ≥ 0.70`, `high ≥ 0.50`, `medium ≥ 0.30`, else `low`.
+
+Isolation Forest scores are calibrated against percentiles learned from the
+training partition. This makes a transaction's score stable whether it is
+submitted alone or as part of a batch.
 
 ## State management
 

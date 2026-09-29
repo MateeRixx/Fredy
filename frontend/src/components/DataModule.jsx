@@ -56,21 +56,21 @@ export function DataModule({ onLoaded }) {
   ]
 
   return (
-    <div className="panel max-w-3xl">
+    <div className="panel w-full max-w-4xl overflow-hidden">
       <div className="panel-header">
         <span className="panel-title">Data Source</span>
         <span className="text-2xs text-zinc-600">Initialize pipeline</span>
       </div>
-      <div className="p-5">
-        <div className="flex gap-1 mb-5">
+      <div className="p-5 sm:p-6">
+        <div className="mb-6 inline-flex w-full gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`px-3.5 h-8 text-[0.75rem] font-medium rounded-md transition-colors border ${
+              className={`h-10 flex-1 rounded-lg px-3 text-sm font-semibold transition-all ${
                 tab === t.id
-                  ? 'bg-ink-700/60 text-amber-400 border-amber-400/40'
-                  : 'text-zinc-400 border-transparent hover:text-zinc-200'
+                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               }`}
             >
               {t.label}
@@ -79,8 +79,8 @@ export function DataModule({ onLoaded }) {
         </div>
 
         {tab === 'synthetic' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Field label="Rows">
                 <input type="number" className="input w-full" value={rows} min={100} onChange={(e) => setRows(Number(e.target.value))} />
               </Field>
@@ -101,12 +101,12 @@ export function DataModule({ onLoaded }) {
         )}
 
         {tab === 'ulb' && (
-          <div className="space-y-4">
-            <p className="text-xs text-zinc-500 leading-relaxed">
+          <div className="space-y-5">
+            <p className="rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600 dark:bg-slate-800/70 dark:text-slate-400">
               ULB Credit Card schema: <span className="num text-zinc-300">Time, V1–V28, Amount, Class</span>. Generates
               a matching synthetic dataset with realistic PCA features and class imbalance.
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Rows">
                 <input type="number" className="input w-full" value={ulbRows} min={100} onChange={(e) => setUlbRows(Number(e.target.value))} />
               </Field>
@@ -122,8 +122,8 @@ export function DataModule({ onLoaded }) {
 
         {tab === 'upload' && (
           <div
-            className={`border-2 border-dashed rounded-lg p-8 flex flex-col items-center gap-3 transition-colors cursor-pointer ${
-              drag ? 'border-signal-cyan/60 bg-signal-cyan/5' : 'border-line'
+            className={`flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${
+              drag ? 'border-sky-400 bg-sky-50 dark:border-sky-400 dark:bg-sky-500/10' : 'border-slate-200 bg-slate-50/60 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800/40 dark:hover:border-slate-600'
             }`}
             onClick={() => fileRef.current?.click()}
             onDragOver={(e) => { e.preventDefault(); setDrag(true) }}

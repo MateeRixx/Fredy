@@ -8,9 +8,26 @@ Uses a module-scoped state so tests share one trained pipeline.
 import pytest
 from fastapi.testclient import TestClient
 
+from app.config import settings
 from app.main import app
 
 client = TestClient(app)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def authenticated_client():
+    """Authenticate API integration tests through the same flow as the UI."""
+    if not settings.auth_email:
+        settings.auth_email = "analyst@example.com"
+    if not settings.auth_password:
+        settings.auth_password = "test-only-password"
+    response = client.post(
+        "/api/auth/login",
+        json={"email": settings.auth_email, "password": settings.auth_password},
+    )
+    assert response.status_code == 200, response.text
+    yield
+    client.post("/api/auth/logout")
 
 
 @pytest.fixture(scope="module")
@@ -33,6 +50,27 @@ def test_health():
     r = client.get("/api/health")
     assert r.status_code == 200
     assert r.json()["status"] == "ok"
+
+
+def test_auth_rejects_invalid_credentials():
+    unauthenticated = TestClient(app)
+    response = unauthenticated.post(
+        "/api/auth/login",
+        json={"email": settings.auth_email, "password": "incorrect-password"},
+    )
+    assert response.status_code == 401
+
+
+def test_protected_api_requires_session():
+    unauthenticated = TestClient(app)
+    response = unauthenticated.get("/api/model/status")
+    assert response.status_code == 401
+
+
+def test_authenticated_session():
+    response = client.get("/api/auth/session")
+    assert response.status_code == 200
+    assert response.json() == {"authenticated": True, "email": settings.auth_email}
 
 
 def test_ready():
@@ -115,6 +153,36 @@ def test_score_transaction_endpoint(trained_state):
     body = r.json()
     assert "hybrid_score" in body
     assert 0.0 <= body["hybrid_score"] <= 1.0
+
+
+def test_live_score_is_persisted_and_enters_alert_flow(trained_state):
+    before = client.get("/api/scored?limit=1").json()["total"]
+    txn = {
+        "transaction_id": "LIVE-INTEGRATION-001",
+        "customer_id": "CUST-00001",
+        "amount": 2500.0,
+        "timestamp": "2024-06-01T02:00:00",
+        "merchant_category": "travel",
+        "transaction_type": "transfer",
+        "channel": "online",
+        "location": "Foreign",
+    }
+    response = client.post("/api/score/transaction", json={"transaction": txn})
+    assert response.status_code == 200, response.text
+    body = response.json()
+    after = client.get("/api/scored?limit=1").json()["total"]
+    assert after == before + 1
+
+    filtered = client.get(f"/api/scored?limit=1000&risk={body['risk_level']}")
+    assert filtered.status_code == 200
+    assert filtered.json()["rows"]
+    assert all(
+        row["risk_level"] == body["risk_level"]
+        for row in filtered.json()["rows"]
+    )
+
+    if body["hybrid_score"] >= 0.5:
+        assert "alert_id" in body
 
 
 def test_generate_ulb():

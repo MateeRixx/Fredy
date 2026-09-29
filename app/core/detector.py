@@ -17,6 +17,7 @@ import pandas as pd
 from app.core.feature_engineer import FeatureEngineer
 from app.core.model import FraudModel
 from app.core.preprocessor import TransactionPreprocessor
+from app.core.ulb_preprocessor import ULBPreprocessor
 
 
 class RiskLevel(str, Enum):
@@ -68,8 +69,8 @@ class FraudDetector:
     def __init__(
         self,
         model: FraudModel,
-        preprocessor: TransactionPreprocessor,
-        feature_engineer: FeatureEngineer,
+        preprocessor: TransactionPreprocessor | ULBPreprocessor,
+        feature_engineer: FeatureEngineer | None,
         thresholds: Optional[dict[str, float]] = None,
     ) -> None:
         """

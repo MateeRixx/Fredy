@@ -3,6 +3,25 @@
 Base URL: `http://127.0.0.1:8000`
 Interactive docs: `/docs` (Swagger) and `/redoc`.
 
+## Authentication
+
+The health, readiness, app-info, and authentication endpoints are public. All
+other `/api/*` routes require the HTTP-only session cookie returned by login.
+
+### `POST /api/auth/login`
+
+```json
+{ "email": "analyst@example.com", "password": "configured-password" }
+```
+
+### `GET /api/auth/session`
+
+Returns the current authentication state and analyst email.
+
+### `POST /api/auth/logout`
+
+Expires the current console session cookie.
+
 ## Data ingestion
 
 ### `POST /api/data/generate`
@@ -64,7 +83,9 @@ Score a single transaction.
 ```
 
 Response: `fraud_probability`, `anomaly_score`, `hybrid_score`,
-`risk_level`, `contributing_factors`.
+`risk_level`, `contributing_factors`, and an optional `alert_id` when the
+configured alert threshold is crossed. Live scores are appended to the scored
+transaction ledger and qualifying scores enter the alert queue.
 
 ### `POST /api/score/batch`
 

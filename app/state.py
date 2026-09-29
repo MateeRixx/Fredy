@@ -22,7 +22,7 @@ class SessionState:
     """Thread-safe container for pipeline artifacts shared across requests."""
 
     def __init__(self) -> None:
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._preprocessor: TransactionPreprocessor | None = None
         self._ulb_preprocessor: ULBPreprocessor | None = None
         self._engineer: FeatureEngineer | None = None
@@ -155,6 +155,20 @@ class SessionState:
 
     def set_scored(self, df: pd.DataFrame) -> None:
         self._scored = df
+
+    def append_scored(self, raw: pd.DataFrame, results: list[dict]) -> None:
+        """Append live scoring results together with their raw context."""
+        result_df = pd.DataFrame(results).reset_index(drop=True)
+        raw_df = raw.reset_index(drop=True).drop(
+            columns=["transaction_id"], errors="ignore"
+        )
+        rows = pd.concat([result_df, raw_df], axis=1)
+        if self._scored is None or self._scored.empty:
+            self._scored = rows
+        else:
+            self._scored = pd.concat(
+                [self._scored, rows], ignore_index=True, sort=False
+            )
 
 
 def _summarize_dataset(df: pd.DataFrame, *, is_ulb: bool) -> dict:

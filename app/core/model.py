@@ -14,7 +14,7 @@ import json
 import pickle
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -128,6 +128,8 @@ class FraudModel:
         self._feature_columns: list[str] = []
         self._trained: bool = False
         self._metrics: Optional[ModelMetrics] = None
+        self._iso_score_min: float = 0.0
+        self._iso_score_max: float = 1.0
 
     # ------------------------------------------------------------------
     # Public API
@@ -187,6 +189,73 @@ class FraudModel:
             )
             split_method = "random_stratified"
 
+        return self._fit_and_evaluate(
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            split_method=split_method,
+            cv_source=(X, y) if not temporal_split else None,
+            decision_threshold=0.5,
+        )
+
+    def train_pre_split(
+        self,
+        train_df: pd.DataFrame,
+        test_df: pd.DataFrame,
+        feature_columns: list[str],
+        target_column: str = "is_fraud",
+        split_method: str = "pre_split",
+        cross_validate: bool = False,
+        decision_threshold: float = 0.5,
+    ) -> ModelMetrics:
+        """Train and evaluate using an already-separated dataset.
+
+        This entry point lets callers fit preprocessing only on the training
+        partition, preventing test-set statistics from leaking into model
+        evaluation.
+        """
+        self._feature_columns = [
+            c for c in feature_columns
+            if c in train_df.columns and c in test_df.columns
+        ]
+        if not self._feature_columns:
+            raise ValueError("No usable feature columns were provided.")
+
+        X_train = self._matrix(train_df)
+        X_test = self._matrix(test_df)
+        y_train = train_df[target_column].values.astype(int)
+        y_test = test_df[target_column].values.astype(int)
+        cv_source = (X_train, y_train) if cross_validate else None
+        return self._fit_and_evaluate(
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            split_method=split_method,
+            cv_source=cv_source,
+            decision_threshold=decision_threshold,
+        )
+
+    def _fit_and_evaluate(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_test: np.ndarray,
+        y_test: np.ndarray,
+        *,
+        split_method: str,
+        cv_source: tuple[np.ndarray, np.ndarray] | None,
+        decision_threshold: float,
+    ) -> ModelMetrics:
+        """Fit both models and evaluate the hybrid score."""
+        if len(np.unique(y_train)) < 2:
+            raise ValueError("Training data must contain legitimate and fraudulent rows.")
+        if len(np.unique(y_test)) < 2:
+            raise ValueError("Test data must contain legitimate and fraudulent rows.")
+
+        cv_X, cv_y = cv_source if cv_source is not None else (None, None)
+
         # --- Optional SMOTE on training set only ---
         if self._use_smote:
             X_train, y_train = self._apply_smote(X_train, y_train)
@@ -197,26 +266,41 @@ class FraudModel:
         # --- Unsupervised: Isolation Forest ---
         self._iso.fit(X_train)
 
-        # --- Evaluate ---
-        y_pred = self._rf.predict(X_test)
-        y_proba = self._rf.predict_proba(X_test)[:, 1]
+        # Calibrate anomaly scores once against the training distribution.
+        # Per-request min/max normalization makes single-row inference always
+        # equal to 1.0 and makes the same transaction batch-dependent.
+        train_raw = self._iso.decision_function(X_train)
+        self._iso_score_min = float(np.quantile(train_raw, 0.01))
+        self._iso_score_max = float(np.quantile(train_raw, 0.99))
+        if self._iso_score_max <= self._iso_score_min:
+            self._iso_score_min = float(train_raw.min())
+            self._iso_score_max = float(train_raw.max())
+
+        # --- Evaluate the hybrid model actually used for alerts ---
+        self._trained = True
+        y_score = self.hybrid_score(X_test)
+        y_pred = (y_score >= decision_threshold).astype(int)
 
         # Precision-recall curve
-        pr_precision, pr_recall, _ = precision_recall_curve(y_test, y_proba)
+        pr_precision, pr_recall, _ = precision_recall_curve(y_test, y_score)
 
         # ROC curve
-        roc_fpr, roc_tpr, _ = roc_curve(y_test, y_proba)
+        roc_fpr, roc_tpr, _ = roc_curve(y_test, y_score)
 
         metrics = ModelMetrics(
             accuracy=float(accuracy_score(y_test, y_pred)),
             precision=float(precision_score(y_test, y_pred, zero_division=0)),
             recall=float(recall_score(y_test, y_pred, zero_division=0)),
             f1=float(f1_score(y_test, y_pred, zero_division=0)),
-            roc_auc=float(roc_auc_score(y_test, y_proba)),
-            pr_auc=float(average_precision_score(y_test, y_proba)),
-            confusion_matrix=confusion_matrix(y_test, y_pred),
+            roc_auc=float(roc_auc_score(y_test, y_score)),
+            pr_auc=float(average_precision_score(y_test, y_score)),
+            confusion_matrix=confusion_matrix(y_test, y_pred, labels=[0, 1]),
             classification_report=classification_report(
-                y_test, y_pred, target_names=["Legitimate", "Fraud"]
+                y_test,
+                y_pred,
+                labels=[0, 1],
+                target_names=["Legitimate", "Fraud"],
+                zero_division=0,
             ),
             precision_curve=pr_precision,
             recall_curve=pr_recall,
@@ -225,15 +309,19 @@ class FraudModel:
             split_method=split_method,
         )
 
-        # Cross-validation (only meaningful for non-temporal splits)
-        if not temporal_split:
+        if cv_source is not None:
+            min_class_count = int(np.bincount(cv_y).min())
+            folds = min(self._cv_folds, min_class_count)
+        else:
+            folds = 0
+        if folds >= 2:
             cv = StratifiedKFold(
-                n_splits=self._cv_folds,
+                n_splits=folds,
                 shuffle=True,
                 random_state=self._random_state,
             )
             cv_scores = cross_val_score(
-                self._rf, X, y, cv=cv, scoring="f1", n_jobs=-1
+                self._rf, cv_X, cv_y, cv=cv, scoring="f1", n_jobs=-1
             )
             metrics.cv_scores = cv_scores.tolist()
 
@@ -248,7 +336,6 @@ class FraudModel:
         )
 
         self._metrics = metrics
-        self._trained = True
         return metrics
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
@@ -277,10 +364,11 @@ class FraudModel:
         self._assert_trained()
         X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
         raw = self._iso.decision_function(X)
-        # decision_function: large positive = normal, negative = anomaly
-        # Rescale so 1 = most anomalous
-        normalized = 1 - (raw - raw.min()) / (raw.max() - raw.min() + 1e-10)
-        return normalized
+        span = self._iso_score_max - self._iso_score_min
+        if span <= 1e-12:
+            return np.zeros(len(raw), dtype=float)
+        normalized = 1 - (raw - self._iso_score_min) / span
+        return np.clip(normalized, 0.0, 1.0)
 
     def hybrid_score(
         self,
@@ -328,6 +416,14 @@ class FraudModel:
             pickle.dump(self._iso, f)
         with open(path / "feature_columns.json", "w") as f:
             json.dump(self._feature_columns, f)
+        with open(path / "model_metadata.json", "w") as f:
+            json.dump(
+                {
+                    "iso_score_min": self._iso_score_min,
+                    "iso_score_max": self._iso_score_max,
+                },
+                f,
+            )
 
     def load(self, path: str | Path) -> None:
         """Load a previously saved model.
@@ -342,6 +438,17 @@ class FraudModel:
             self._iso = pickle.load(f)
         with open(path / "feature_columns.json") as f:
             self._feature_columns = json.load(f)
+        metadata_path = path / "model_metadata.json"
+        if metadata_path.exists():
+            with open(metadata_path) as f:
+                metadata = json.load(f)
+            self._iso_score_min = float(metadata.get("iso_score_min", 0.0))
+            self._iso_score_max = float(metadata.get("iso_score_max", 1.0))
+        else:
+            # Backward-compatible fallback for models saved before calibrated
+            # anomaly metadata existed.
+            self._iso_score_min = -0.5
+            self._iso_score_max = 0.5
         self._trained = True
 
     # ------------------------------------------------------------------
@@ -375,3 +482,7 @@ class FraudModel:
     def _assert_trained(self) -> None:
         if not self._trained:
             raise RuntimeError("Model not trained. Call train() first.")
+
+    def _matrix(self, df: pd.DataFrame) -> np.ndarray:
+        X = df[self._feature_columns].values.astype(np.float64)
+        return np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)

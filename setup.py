@@ -21,7 +21,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "fraud-detector=fraud_detector.cli:main",
+            "fraud-detector=app.core.cli:main",
         ],
     },
     classifiers=[

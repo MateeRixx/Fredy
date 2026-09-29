@@ -1,3 +1,5 @@
+import { COLORS } from './theme'
+
 export function fmtNum(n, digits = 0) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—'
   return Number(n).toLocaleString('en-US', { maximumFractionDigits: digits, minimumFractionDigits: digits })
@@ -34,11 +36,11 @@ export function fmtDateTime(iso) {
 
 export function riskTone(level) {
   switch (level) {
-    case 'critical': return { text: 'text-signal-fraud', badge: 'bg-signal-fraud/15 text-signal-fraud border border-signal-fraud/40', bar: '#ff3b47', dot: '#ff3b47' }
-    case 'high': return { text: 'text-signal-high', badge: 'bg-signal-high/15 text-signal-high border border-signal-high/40', bar: '#ff7a2a', dot: '#ff7a2a' }
-    case 'medium': return { text: 'text-signal-medium', badge: 'bg-signal-medium/15 text-signal-medium border border-signal-medium/40', bar: '#f5b83d', dot: '#f5b83d' }
-    case 'low': return { text: 'text-signal-low', badge: 'bg-signal-low/15 text-signal-low border border-signal-low/40', bar: '#26d9a0', dot: '#26d9a0' }
-    default: return { text: 'text-zinc-400', badge: 'bg-zinc-600/20 text-zinc-400 border border-zinc-600', bar: '#71717a', dot: '#71717a' }
+    case 'critical': return { text: 'text-red-700 dark:text-red-400', badge: 'border border-red-200 bg-red-100 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400', bar: COLORS.fraud, dot: COLORS.fraud }
+    case 'high': return { text: 'text-red-600 dark:text-red-400', badge: 'border border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400', bar: COLORS.high, dot: COLORS.high }
+    case 'medium': return { text: 'text-amber-700 dark:text-amber-400', badge: 'border border-amber-200 bg-amber-100 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400', bar: COLORS.medium, dot: COLORS.medium }
+    case 'low': return { text: 'text-emerald-700 dark:text-emerald-400', badge: 'border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400', bar: COLORS.low, dot: COLORS.low }
+    default: return { text: 'text-slate-500 dark:text-slate-400', badge: 'border border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300', bar: COLORS.muted, dot: COLORS.muted }
   }
 }
 

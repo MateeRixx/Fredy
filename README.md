@@ -1,142 +1,104 @@
-# Fraud Command — Real-Time Fraud Detection System
+# Fraud Command
 
-[![CI](https://github.com/MateeRixx/Fredy/actions/workflows/ci.yml/badge.svg)](https://github.com/MateeRixx/Fredy/actions/workflows/ci.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](#)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](#)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#)
+Fraud Command is a local demo app that helps you spot suspicious financial
+transactions. It gives you one simple workspace to create sample data, train a
+fraud model, score a transaction, and review alerts.
 
-An end-to-end fraud detection platform for financial transactions: a hybrid
-**Random Forest + Isolation Forest** scoring engine, an analyst alert-triage
-workflow, a monitoring console, and full observability — packaged for
-production with Docker and CI.
+It is designed for learning and demonstrations. Do not use it with real
+financial data without adding production security and storage controls.
 
-**Try the live demo:** https://fraud-command.onrender.com
-*(free tier — sleeps after 15 min idle, first visit takes ~30-60s to wake)*
+## Start it (recommended)
 
-```
-Raw Transactions → Preprocess → Feature Engineering → Model Training
-                                                         │
-                   Alert Triage ← Scoring Engine ← Hybrid RF + IF
-                   (analyst feedback loop)
-```
+You only need [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
-## Highlights
+1. Open Docker Desktop and wait until it says it is running.
+2. Open PowerShell in this project folder.
+3. Create your private settings file:
 
-- **Hybrid model** — Random Forest (supervised) + Isolation Forest (unsupervised)
-  fused into a single risk score. Catches fraud patterns neither approach
-  catches alone.
-- **Two pipeline modes** — rich transaction features for synthetic data, and a
-  specialized ULB Credit Card Fraud pipeline (PCA features, 0.17% fraud).
-- **Honest evaluation** — PR-AUC over ROC-AUC for imbalanced classes; optional
-  **temporal train/test splits** to prevent data leakage.
-- **Analyst workflow** — alerts with risk levels, contributing factors, and a
-  confirmed / false-positive feedback loop that tracks false-positive rate.
-- **Real-time scoring API** — single-transaction and batch endpoints returning
-  probability, anomaly score, and hybrid risk in milliseconds.
-- **Production ready** — FastAPI + React UI, Docker Compose, Prometheus
-  metrics, structured JSON logging, health/readiness probes, CI pipeline.
+   ```powershell
+   Copy-Item .env.example .env
+   ```
 
-## Architecture
+4. Open `.env` and choose an email and password for the login page.
+5. Start the app:
 
-| Layer       | Tech                                    |
-|-------------|------------------------------------------|
-| API         | FastAPI, Pydantic v2, Uvicorn            |
-| ML Engine   | scikit-learn (RF, IF), imbalanced-learn  |
-| Frontend    | React 18 + Vite + Tailwind (dark console)|
-| Observability| Prometheus `/metrics`, JSON logs        |
-| Deployment  | Docker Compose, Nginx, health checks     |
+   ```powershell
+   docker compose up -d --build
+   ```
 
-```
-app/               # Backend package
-├── main.py        # FastAPI app factory (middleware, static serving)
-├── config.py      # pydantic-settings (.env / env vars)
-├── logging.py     # structured JSON logging
-├── state.py       # in-memory session state (model, alerts)
-├── schemas.py     # request/response models
-├── api/           # routers: health, data, model, scoring, alerts, benchmark
-├── services/      # business logic (training pipeline)
-└── core/          # ML engine: preprocessors, feature engineering, models
-frontend/          # React console (Vite + Tailwind)
-tests/             # 79 unit + API integration tests
-benchmarks/        # honest benchmarking (temporal splits, ULB)
-docs/              # architecture, deployment, API reference
-docker/            # Dockerfiles + nginx config
+6. Open [http://localhost](http://localhost) in your browser and sign in.
+
+The first start can take a few minutes because Docker downloads the required
+tools. Later starts are much faster.
+
+To stop the app:
+
+```powershell
+docker compose down
 ```
 
-## Quick Start (local)
+## What to do in the app
 
-```bash
-# 1. Backend
-python -m venv .venv
-.venv/Scripts/python -m pip install -r requirements.txt   # Windows
-.venv/bin/python -m pip install -r requirements.txt        # macOS/Linux
+1. On **Command**, create a sample dataset.
+2. On **Model**, train the fraud model.
+3. On **Transactions**, enter values and select **Score Transaction**.
+4. Read the risk result: green is low risk, amber is medium risk, and red is
+   high or critical risk.
+5. Use **Alerts** to review and resolve suspicious transactions.
 
-# 2. Frontend
-cd frontend && npm install && npm run build && cd ..
+If an entry is invalid, the app now explains the exact field that needs fixing,
+such as `amount: Input should be a valid number`.
 
-# 3. Run
-.venv/Scripts/python run_server.py     # → http://127.0.0.1:8000
+## If Docker is not available
+
+Install Python 3.11 and Node.js, then run these commands in PowerShell:
+
+```powershell
+py -3.11 -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+npm.cmd --prefix frontend install
+npm.cmd --prefix frontend run build
+.venv\Scripts\python.exe run_server.py
 ```
 
-Open http://127.0.0.1:8000 — the console shows the pipeline status dashboard.
-API docs at http://127.0.0.1:8000/docs, metrics at `/metrics`.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-## Quick Start (Docker)
+## Check that it is working
 
-```bash
-cp .env.example .env
-docker compose up -d --build
-# Backend:  http://localhost:8000
-# Frontend: http://localhost
+With Docker running, these commands should both return `200`:
+
+```powershell
+Invoke-WebRequest http://localhost
+Invoke-WebRequest http://localhost:8000/api/health
 ```
 
-## CLI
+## Project map
 
-The original CLI is preserved in `main.py`:
-
-```bash
-.venv/Scripts/python main.py --generate --train --evaluate
+```text
+app/         Backend and fraud-detection logic
+frontend/    Website shown in the browser
+tests/       Automated checks
+data/        Small sample data and data helpers
+docs/        Optional technical documentation
+docker/      Files Docker uses to run the app
 ```
 
-## Tests
+## For developers
 
-```bash
-.venv/Scripts/python -m pytest -q        # 79 tests
+Run the automated tests:
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
 ```
 
-## Benchmark Results
+Useful technical documents are in [docs](docs/), including the API reference,
+deployment notes, architecture, and a guided demo.
 
-| Dataset  | Model  | ROC-AUC | PR-AUC | F1  | Split |
-|----------|--------|---------|--------|-----|-------|
-| Synthetic| Hybrid | 0.9998  | —      | —   | random |
-| ULB      | Hybrid | 0.9984  | 0.9081 | 0.62| temporal |
+## Keep your login safe
 
-Run fresh benchmarks with:
-
-```bash
-.venv/Scripts/python benchmarks/run_benchmark.py
-```
-
-## Project Roadmap
-
-- [x] Hybrid RF + IF scoring engine
-- [x] Real-time scoring API + analyst alert workflow
-- [x] Web console (React)
-- [x] Docker + CI + observability
-- [x] Hosted live demo + open-source contribution flow
-- [ ] Model persistence / retraining scheduler
-- [ ] Role-based access control (RBAC)
-- [ ] Online model evaluation (drift detection)
-
-## Contributing
-
-We welcome contributions — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup,
-style, and PR guidance. All interactions follow our
-[Code of Conduct](CODE_OF_CONDUCT.md). Bug reports and feature requests use
-the [issue templates](.github/ISSUE_TEMPLATE/).
+Your `.env` file contains your login details. It is intentionally ignored by
+Git, so do not share or commit it.
 
 ## License
 
-This project is released under the [MIT License](LICENSE) for demonstration
-and educational purposes. The ULB Credit Card Fraud dataset is available under
-the Open Database License (ODbL) v1.0.
+MIT — see [LICENSE](LICENSE).

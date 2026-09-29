@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import api from '../api'
 import { useApp } from '../context'
 import { fmtScore, fmtPct } from '../lib/format'
+import { COLORS } from '../lib/theme'
 
 export default function Benchmarks() {
   const { toast } = useApp()
@@ -37,19 +38,19 @@ export default function Benchmarks() {
   ]
 
   return (
-    <div className="p-6 space-y-5 max-w-[1200px]">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div className="mx-auto max-w-[1320px] space-y-6 p-4 sm:p-6 lg:p-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Config */}
         <div className="panel h-fit">
           <div className="panel-header"><span className="panel-title">Benchmark Configuration</span></div>
-          <div className="p-4 space-y-4">
-            <p className="text-xs text-zinc-500 leading-relaxed">
+          <div className="space-y-5 p-5 sm:p-6">
+            <p className="rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
               Temporal split (first 80% train / last 20% test) on ULB-format synthetic data. Honest metrics — PR AUC is
               the primary signal for imbalanced fraud data.
             </p>
             <label className="flex flex-col gap-1">
               <span className="label">Synthetic Rows</span>
-              <input type="number" className="input" min={100} value={rows} onChange={(e) => setRows(Number(e.target.value))} />
+              <input type="number" className="input" min={5000} max={250000} value={rows} onChange={(e) => setRows(Number(e.target.value))} />
             </label>
             <label className="flex flex-col gap-1">
               <span className="label">Trees</span>
@@ -60,7 +61,7 @@ export default function Benchmarks() {
               {busy ? 'Running…' : 'Run Benchmark'}
             </button>
             {busy && (
-              <div className="text-2xs text-zinc-500 text-center animate-pulse">
+              <div className="animate-pulse text-center text-2xs text-slate-500 dark:text-slate-400">
                 Training RF + IF on {rows.toLocaleString()} rows — may take a minute
               </div>
             )}
@@ -71,10 +72,10 @@ export default function Benchmarks() {
         <div className="lg:col-span-2 panel overflow-hidden">
           <div className="panel-header">
             <span className="panel-title">Benchmark Results</span>
-            {results && <span className="num text-2xs text-zinc-500">{rowsResult?.toLocaleString()} rows · temporal 80/20</span>}
+            {results && <span className="num text-2xs text-slate-500 dark:text-slate-400">{rowsResult?.toLocaleString()} rows · temporal 80/20</span>}
           </div>
           {results ? (
-            <div className="p-4 space-y-4">
+            <div className="space-y-5 p-5 sm:p-6">
               <div className="overflow-x-auto">
                 <table className="tbl">
                   <thead>
@@ -89,28 +90,28 @@ export default function Benchmarks() {
                   <tbody>
                     {benchRows.map((r) => (
                       <tr key={r.model}>
-                        <td className="font-medium text-zinc-200">{r.model}</td>
+                        <td className="font-medium text-slate-800 dark:text-slate-100">{r.model}</td>
                         <td className="num text-right text-signal-cyan">{r.roc != null ? fmtScore(r.roc, 4) : '—'}</td>
                         <td className="num text-right text-amber-400">{r.pr != null ? fmtScore(r.pr, 4) : '—'}</td>
-                        <td className="num text-right text-zinc-100">{r.f1 != null ? fmtScore(r.f1, 4) : 'N/A'}</td>
-                        <td className="text-2xs text-zinc-500">{r.note}</td>
+                        <td className="num text-right text-slate-700 dark:text-slate-200">{r.f1 != null ? fmtScore(r.f1, 4) : 'N/A'}</td>
+                        <td className="text-2xs text-slate-500 dark:text-slate-400">{r.note}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <BenchGauge label="RF ROC AUC" value={rf?.roc_auc ?? 0} />
                 <BenchGauge label="Hybrid ROC AUC" value={hybrid?.roc_auc ?? 0} />
                 <BenchGauge label="Hybrid PR AUC" value={hybrid?.pr_auc ?? 0} />
               </div>
-              <div className="text-2xs text-zinc-500">
+              <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-2xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
                 Isolation Forest is unsupervised — F1 is not applicable. Hybrid best F1 threshold selected via
                 precision-recall optimization.
               </div>
             </div>
           ) : (
-            <div className="p-10 text-sm text-zinc-600 text-center">Run a benchmark to compare model performance.</div>
+            <div className="p-12 text-center text-sm text-slate-500 dark:text-slate-400">Run a benchmark to compare model performance.</div>
           )}
         </div>
       </div>
@@ -123,13 +124,13 @@ function BenchGauge({ label, value }) {
   const r = 32
   const circ = 2 * Math.PI * r
   const arc = circ * pct
-  const color = value >= 0.85 ? '#26d9a0' : value >= 0.6 ? '#f5b83d' : '#ff3b47'
+  const color = value >= 0.85 ? COLORS.low : value >= 0.6 ? COLORS.amber : COLORS.fraud
   return (
-    <div className="bg-ink-900 border border-line rounded p-3 flex flex-col items-center gap-1.5">
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
       <svg width="76" height="76" viewBox="0 0 76 76">
-        <circle cx="38" cy="38" r={r} fill="none" stroke="#1a2230" strokeWidth="6" />
+        <circle cx="38" cy="38" r={r} fill="none" stroke={COLORS.surface} strokeWidth="6" />
         <circle cx="38" cy="38" r={r} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${arc} ${circ - arc}`} transform="rotate(-90 38 38)" />
-        <text x="38" y="42" textAnchor="middle" dominantBaseline="central" fill="#fafafa" fontSize="14" fontFamily="IBM Plex Mono" fontWeight="600">
+        <text x="38" y="42" textAnchor="middle" dominantBaseline="central" fill={COLORS.text} fontSize="14" fontFamily="IBM Plex Mono" fontWeight="600">
           {value ? (value * 100).toFixed(1) : '0.0'}
         </text>
       </svg>
@@ -140,15 +141,15 @@ function BenchGauge({ label, value }) {
 
 function Toggle({ label, checked, onChange }) {
   return (
-    <button className="flex items-center gap-3 w-full text-left" onClick={() => onChange(!checked)}>
+    <button className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60" onClick={() => onChange(!checked)}>
       <span
         className={`w-8 h-[18px] rounded-full shrink-0 relative transition-colors border ${
-          checked ? 'bg-signal-high/70 border-signal-high' : 'bg-ink-800 border-line'
+          checked ? 'bg-red-500 border-red-500' : 'border-slate-300 bg-slate-200 dark:border-slate-700 dark:bg-slate-800'
         }`}
       >
-        <span className={`absolute top-[1px] w-3.5 h-3.5 rounded-full bg-zinc-100 transition-all ${checked ? 'left-[15px]' : 'left-[1px]'}`} />
+        <span className={`absolute top-[1px] h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-all ${checked ? 'left-[15px]' : 'left-[1px]'}`} />
       </span>
-      <span className="text-[0.8125rem] text-zinc-200 font-medium">{label}</span>
+      <span className="text-[0.8125rem] font-medium text-slate-700 dark:text-slate-200">{label}</span>
     </button>
   )
 }

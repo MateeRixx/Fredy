@@ -11,16 +11,14 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api import api_router
+from app.api.auth import COOKIE_NAME, read_session
 from app.config import settings
 from app.logging import log
-from app.state import SessionState
-
-state = SessionState()
 
 app = FastAPI(
     title=settings.app_name,
@@ -41,10 +39,29 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_credentials=True,
+    allow_credentials="*" not in settings.cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+PUBLIC_API_PATHS = {
+    "/api/health",
+    "/api/ready",
+    "/api/app-info",
+    "/api/auth/login",
+    "/api/auth/logout",
+    "/api/auth/session",
+}
+
+
+@app.middleware("http")
+async def require_console_session(request: Request, call_next):
+    """Require a valid analyst session for non-public API operations."""
+    path = request.url.path
+    if path.startswith("/api/") and path not in PUBLIC_API_PATHS:
+        if read_session(request.cookies.get(COOKIE_NAME)) is None:
+            return JSONResponse(status_code=401, content={"detail": "Authentication required."})
+    return await call_next(request)
 
 
 @app.middleware("http")

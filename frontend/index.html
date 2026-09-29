@@ -7,6 +7,15 @@
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#05070b" />
     <title>Fraud Command — Transaction Intelligence</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem('fraud-command-theme')
+        const preferredTheme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = savedTheme || preferredTheme
+      } catch (_) {
+        document.documentElement.dataset.theme = 'dark'
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

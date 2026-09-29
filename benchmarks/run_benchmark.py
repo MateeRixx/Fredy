@@ -22,9 +22,10 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import (
     average_precision_score,
-    classification_report,
     f1_score,
+    precision_score,
     precision_recall_curve,
+    recall_score,
     roc_auc_score,
 )
 
@@ -41,6 +42,7 @@ def run_benchmark(
     force_synthetic: bool = False,
     use_smote: bool = True,
     n_estimators: int = 200,
+    synthetic_rows: int = 50000,
     output_dir: str = "benchmarks/results",
 ) -> dict:
     """Run the full benchmark pipeline.
@@ -69,12 +71,20 @@ def run_benchmark(
     start_time = time.time()
 
     if force_synthetic:
-        df = generate_ulb_format_synthetic(n_rows=50000)
-        data_source = "ULB-format synthetic (50K sample)"
+        df = generate_ulb_format_synthetic(n_rows=synthetic_rows)
+        data_source = f"ULB-format synthetic ({synthetic_rows:,} rows)"
     else:
-        df = load_dataset(data_path, fallback_synthetic=True, synthetic_n=50000)
+        df = load_dataset(
+            data_path,
+            fallback_synthetic=True,
+            synthetic_n=synthetic_rows,
+        )
         real_path = Path(data_path)
-        data_source = "ULB Credit Card (real)" if real_path.exists() else "ULB-format synthetic (50K sample)"
+        data_source = (
+            "ULB Credit Card (real)"
+            if real_path.exists()
+            else f"ULB-format synthetic ({synthetic_rows:,} rows)"
+        )
 
     n_total = len(df)
     n_fraud = int(df["Class"].sum())
@@ -87,22 +97,23 @@ def run_benchmark(
     print(f"  Legitimate: {n_legit:,}")
 
     # ------------------------------------------------------------------
-    # 2. Preprocess
+    # 2. Temporal split (before preprocessing to prevent leakage)
     # ------------------------------------------------------------------
-    print("\n[2/5] Preprocessing...")
-    preprocessor = ULBPreprocessor()
-    df_processed = preprocessor.fit_transform(df)
-    feature_cols = preprocessor.get_feature_columns()
-    print(f"  Features: {len(feature_cols)}")
+    print("\n[2/5] Temporal train/test split...")
+    ordered = df.sort_values("Time").reset_index(drop=True)
+    split_idx = int(len(ordered) * 0.8)
+    train_raw = ordered.iloc[:split_idx].copy()
+    test_raw = ordered.iloc[split_idx:].copy()
 
     # ------------------------------------------------------------------
-    # 3. Temporal split (CRITICAL: no random split on time-series data)
+    # 3. Preprocess (fit on training partition only)
     # ------------------------------------------------------------------
-    print("\n[3/5] Temporal train/test split...")
-    # Data is sorted by Time. Use first 80% for training, last 20% for test.
-    split_idx = int(len(df_processed) * 0.8)
-    df_train = df_processed.iloc[:split_idx]
-    df_test = df_processed.iloc[split_idx:]
+    print("\n[3/5] Preprocessing...")
+    preprocessor = ULBPreprocessor()
+    df_train = preprocessor.fit_transform(train_raw)
+    df_test = preprocessor.transform(test_raw)
+    feature_cols = preprocessor.get_feature_columns()
+    print(f"  Features: {len(feature_cols)}")
 
     print(f"  Training set: {len(df_train):,} ({df_train['Class'].sum():,.0f} fraud)")
     print(f"  Test set:     {len(df_test):,} ({df_test['Class'].sum():,.0f} fraud)")
@@ -122,39 +133,49 @@ def run_benchmark(
         rf_class_weight="balanced",
         use_smote=use_smote,
     )
-    rf_metrics = rf_model.train(
-        df_processed,
+    rf_model.train_pre_split(
+        df_train,
+        df_test,
         feature_cols,
         target_column="Class",
-        temporal_split=True,
-        time_column="Time",
+        split_method="temporal",
     )
-    results["random_forest"] = _extract_metrics(rf_metrics)
-    print(f"    ROC AUC:   {rf_metrics.roc_auc:.4f}")
-    print(f"    PR AUC:    {rf_metrics.pr_auc:.4f}")
-    print(f"    F1:        {rf_metrics.f1:.4f}")
-    print(f"    Precision: {rf_metrics.precision:.4f}")
-    print(f"    Recall:    {rf_metrics.recall:.4f}")
 
     # --- Isolation Forest (standalone) ---
     print("\n  --- Isolation Forest (unsupervised) ---")
     X_train = df_train[feature_cols].values.astype(np.float64)
     X_test = df_test[feature_cols].values.astype(np.float64)
+    y_train = df_train["Class"].values.astype(int)
     y_test = df_test["Class"].values.astype(int)
     X_train = np.nan_to_num(X_train, nan=0.0, posinf=0.0, neginf=0.0)
     X_test = np.nan_to_num(X_test, nan=0.0, posinf=0.0, neginf=0.0)
+
+    rf_scores = rf_model.predict_proba(X_test)
+    rf_predictions = rf_scores >= 0.5
+    results["random_forest"] = {
+        "roc_auc": float(roc_auc_score(y_test, rf_scores)),
+        "pr_auc": float(average_precision_score(y_test, rf_scores)),
+        "f1": float(f1_score(y_test, rf_predictions)),
+        "precision": float(precision_score(y_test, rf_predictions, zero_division=0)),
+        "recall": float(recall_score(y_test, rf_predictions, zero_division=0)),
+    }
+    print(f"    ROC AUC:   {results['random_forest']['roc_auc']:.4f}")
+    print(f"    PR AUC:    {results['random_forest']['pr_auc']:.4f}")
+    print(f"    F1:        {results['random_forest']['f1']:.4f}")
+    print(f"    Precision: {results['random_forest']['precision']:.4f}")
+    print(f"    Recall:    {results['random_forest']['recall']:.4f}")
 
     iso_model = FraudModel(
         n_estimators=n_estimators,
         contamination=fraud_rate,
     )
     # Train using the same temporal split
-    iso_metrics = iso_model.train(
-        df_processed,
+    iso_model.train_pre_split(
+        df_train,
+        df_test,
         feature_cols,
         target_column="Class",
-        temporal_split=True,
-        time_column="Time",
+        split_method="temporal",
     )
     # Get anomaly scores on test set
     iso_scores = iso_model.anomaly_scores(X_test)
@@ -174,12 +195,17 @@ def run_benchmark(
     hybrid_roc_auc = float(roc_auc_score(y_test, hybrid_scores))
     hybrid_pr_auc = float(average_precision_score(y_test, hybrid_scores))
 
-    # Find best F1 threshold
-    precisions, recalls, thresholds = precision_recall_curve(y_test, hybrid_scores)
+    # Select the threshold on training data, then report F1 once on the
+    # untouched test set.  Selecting a threshold on test labels inflates the
+    # reported result.
+    train_hybrid_scores = rf_model.hybrid_score(X_train)
+    precisions, recalls, thresholds = precision_recall_curve(
+        y_train, train_hybrid_scores
+    )
     f1_scores = 2 * (precisions * recalls) / (precisions + recalls + 1e-10)
     best_idx = np.argmax(f1_scores)
     best_threshold = float(thresholds[best_idx]) if best_idx < len(thresholds) else 0.5
-    best_f1 = float(f1_scores[best_idx])
+    best_f1 = float(f1_score(y_test, hybrid_scores >= best_threshold))
 
     results["hybrid"] = {
         "roc_auc": hybrid_roc_auc,

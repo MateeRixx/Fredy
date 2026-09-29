@@ -1,33 +1,49 @@
 /** @type {import('tailwindcss').Config} */
+const token = (name) => `rgb(var(--${name}) / <alpha-value>)`
+
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       colors: {
         ink: {
-          950: '#05070b',
-          900: '#0a0e14',
-          850: '#0d121a',
-          800: '#111721',
-          700: '#1a2230',
-          600: '#243046',
-          500: '#34445f',
+          950: token('ink-950'),
+          900: token('ink-900'),
+          850: token('ink-850'),
+          800: token('ink-800'),
+          700: token('ink-700'),
+          600: token('ink-600'),
+          500: token('ink-500'),
         },
         line: {
-          DEFAULT: '#1e2836',
-          strong: '#2b3a4f',
+          DEFAULT: token('line'),
+          strong: token('line-strong'),
         },
         signal: {
-          fraud: '#ff3b47',
-          high: '#ff7a2a',
-          medium: '#f5b83d',
-          low: '#26d9a0',
-          info: '#4aa8ff',
-          cyan: '#2bd8d0',
+          fraud: token('signal-fraud'),
+          high: token('signal-high'),
+          medium: token('signal-medium'),
+          low: token('signal-low'),
+          info: token('signal-info'),
+          cyan: token('signal-cyan'),
         },
         amber: {
-          400: '#f5b83d',
-          500: '#e8a72e',
+          400: token('amber-400'),
+          500: token('amber-500'),
+        },
+        zinc: {
+          50: token('zinc-50'),
+          100: token('zinc-100'),
+          200: token('zinc-200'),
+          300: token('zinc-300'),
+          400: token('zinc-400'),
+          500: token('zinc-500'),
+          600: token('zinc-600'),
+          700: token('zinc-700'),
+          800: token('zinc-800'),
+          900: token('zinc-900'),
+          950: token('zinc-950'),
         },
       },
       fontFamily: {

@@ -117,6 +117,17 @@ def test_anomaly_scores_between_0_and_1():
     assert (scores <= 1.01).all()
 
 
+def test_anomaly_score_is_independent_of_request_batch():
+    df, feature_cols = _build_training_data(n=200)
+    model = FraudModel(n_estimators=10, cv_folds=2)
+    model.train(df, feature_cols)
+
+    X = df[model.feature_columns].values.astype(np.float64)
+    single = model.anomaly_scores(X[:1])[0]
+    batched = model.anomaly_scores(X[:10])[0]
+    assert single == pytest.approx(batched)
+
+
 # ── Hybrid scoring ───────────────────────────────────────────────────
 
 

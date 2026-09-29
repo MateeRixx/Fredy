@@ -30,6 +30,7 @@ Thumbs.db
 output/
 model_output/
 plots/
+benchmarks/results/
 *.pkl
 *.joblib
 
@@ -53,6 +54,15 @@ data/raw/
 htmlcov/
 .coverage
 .coverage.*
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local tool/runtime caches
+.npm-cache/
+.uv-cache/
+.uv-python/
+.docker-config/
 
 # Node / Frontend
 node_modules/

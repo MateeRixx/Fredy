@@ -18,7 +18,10 @@ def run_benchmark(req: BenchmarkRequest):
             force_synthetic=req.force_synthetic,
             use_smote=req.use_smote,
             n_estimators=req.n_estimators,
+            synthetic_rows=req.rows,
         )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=f"Benchmark configuration failed: {exc}")
     except Exception as exc:
         import traceback
 

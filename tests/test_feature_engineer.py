@@ -60,6 +60,14 @@ def test_velocity_mean_is_positive():
     assert (result["velocity_3_mean"] > 0).all()
 
 
+def test_feature_engineering_preserves_input_row_order():
+    fe = FeatureEngineer()
+    df = _make_preprocessed_df(50).sample(frac=1, random_state=9).reset_index(drop=True)
+    expected_ids = df["transaction_id"].tolist()
+    result = fe.fit_transform(df)
+    assert result["transaction_id"].tolist() == expected_ids
+
+
 # ── Amount pattern features ──────────────────────────────────────────
 
 

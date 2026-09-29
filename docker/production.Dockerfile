@@ -30,6 +30,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY data ./data
+COPY benchmarks ./benchmarks
 COPY --from=frontend-build /srv/web/dist ./frontend/dist
 
 EXPOSE 8000

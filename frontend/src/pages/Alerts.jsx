@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import api from '../api'
 import { useApp } from '../context'
 import { fmtScore, fmtDateTime, riskTone, ALERT_STATUS_META } from '../lib/format'
+import { COLORS } from '../lib/theme'
 
 const STATUSES = [
   { id: '', label: 'ALL' },
@@ -59,8 +60,8 @@ export default function Alerts() {
 
   if (!data) {
     return (
-      <div className="p-16 text-center">
-        <p className="text-zinc-500 text-sm">No alerts yet. Generate a dataset and train a model to populate the queue.</p>
+      <div className="mx-auto max-w-xl px-6 py-20 text-center">
+        <p className="text-sm text-slate-500 dark:text-slate-400">No alerts yet. Generate a dataset and train a model to populate the queue.</p>
       </div>
     )
   }
@@ -68,29 +69,29 @@ export default function Alerts() {
   const alerts = data.alerts || []
 
   return (
-    <div className="p-6 space-y-5 max-w-[1400px]">
+    <div className="mx-auto max-w-[1440px] space-y-6 px-4 pb-8 sm:px-6 lg:px-8">
       {/* Summary strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <SummaryCard label="Open" value={data.open} color="#ff7a2a" />
-        <SummaryCard label="Investigating" value={data.investigating} color="#4aa8ff" />
-        <SummaryCard label="Confirmed Fraud" value={data.confirmed} color="#ff3b47" />
-        <SummaryCard label="False Positives" value={data.false_positive} color="#26d9a0" sub={`${(data.false_positive_rate * 100).toFixed(1)}% rate`} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard label="Open" value={data.open} color={COLORS.high} />
+        <SummaryCard label="Investigating" value={data.investigating} color={COLORS.info} />
+        <SummaryCard label="Confirmed Fraud" value={data.confirmed} color={COLORS.fraud} />
+        <SummaryCard label="False Positives" value={data.false_positive} color={COLORS.low} sub={`${(data.false_positive_rate * 100).toFixed(1)}% rate`} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Queue */}
         <div className="lg:col-span-2 panel overflow-hidden">
           <div className="panel-header">
             <span className="panel-title">Alert Queue</span>
             <span className="num text-2xs text-zinc-500">{data.total} shown</span>
           </div>
-          <div className="flex gap-1 px-3 py-2 border-b border-line/60 bg-ink-900/40 overflow-x-auto">
+          <div className="flex gap-2 overflow-x-auto border-b border-slate-100 bg-slate-50/70 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/40">
             {STATUSES.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setStatusFilter(s.id)}
-                className={`px-2.5 h-7 text-[0.6875rem] font-semibold rounded uppercase tracking-wider transition-colors ${
-                  statusFilter === s.id ? 'bg-ink-700 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
+                className={`h-8 rounded-lg px-3 text-xs font-semibold transition-colors ${
+                  statusFilter === s.id ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
                 {s.label}
@@ -129,7 +130,7 @@ export default function Alerts() {
         <div className="panel h-fit">
           <div className="panel-header"><span className="panel-title">Alert Workflow</span></div>
           {selected ? (
-            <div className="p-4 space-y-4">
+            <div className="space-y-5 p-5 sm:p-6">
               <div className="flex items-center justify-between">
                 <span className="num text-zinc-200">{selected.alert_id}</span>
                 <span className={`badge ${riskTone(selected.risk_level).badge}`}>{selected.risk_level}</span>
@@ -152,16 +153,16 @@ export default function Alerts() {
 
               <div>
                 <div className="kicker mb-2">Set Status</div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {TRANSITIONS.map((t) => (
                     <button
                       key={t.id}
                       disabled={busy}
                       onClick={() => updateStatus(selected.alert_id, t.id)}
-                      className={`px-2.5 h-7 text-[0.6875rem] font-medium rounded border transition-colors ${
+                      className={`h-9 rounded-xl border px-3 text-xs font-semibold transition-colors ${
                         selected.status === t.id
-                          ? 'bg-ink-700 text-amber-400 border-amber-400/40'
-                          : 'border-line text-zinc-400 hover:text-zinc-200 hover:bg-ink-700/50'
+                          ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                          : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
                       }`}
                     >
                       {t.label}
@@ -191,12 +192,12 @@ export default function Alerts() {
 
 function SummaryCard({ label, value, color, sub }) {
   return (
-    <div className="panel px-4 py-3">
+    <div className="panel p-5">
       <div className="flex items-center justify-between">
         <span className="kicker">{label}</span>
         {sub && <span className="text-2xs text-zinc-600 num">{sub}</span>}
       </div>
-      <div className="num text-[1.6rem] font-semibold mt-1" style={{ color }}>{value}</div>
+      <div className="num mt-3 text-2xl font-bold" style={{ color }}>{value}</div>
     </div>
   )
 }

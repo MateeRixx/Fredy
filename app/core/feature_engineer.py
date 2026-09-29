@@ -157,7 +157,12 @@ class FeatureEngineer:
                 df[f"velocity_{w}_max"] = 0.0
             return df
 
-        # Sort by customer and time for correct rolling behaviour
+        # Sort temporarily for correct rolling behaviour, then restore the
+        # caller's row order.  Downstream scoring associates results with the
+        # original transaction row, so returning customer-sorted data would
+        # silently attach scores to the wrong transaction.
+        order_col = "__feature_original_order"
+        df[order_col] = np.arange(len(df))
         sort_cols = ["customer_id"]
         if "timestamp" in df.columns:
             sort_cols.append("timestamp")
@@ -180,7 +185,11 @@ class FeatureEngineer:
             )
             df[f"velocity_{w}_max"] = rolling_max
 
-        return df
+        return (
+            df.sort_values(order_col)
+            .drop(columns=[order_col])
+            .reset_index(drop=True)
+        )
 
     # ------------------------------------------------------------------
     # Internal: geographic features

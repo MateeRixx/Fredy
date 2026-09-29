@@ -1,0 +1,42 @@
+# Version control and editor metadata
+.git
+.github
+.vscode
+.idea
+
+# Local Python environments and caches
+.venv
+venv
+env
+.uv-cache
+.uv-python
+.npm-cache
+.pytest_cache
+.ruff_cache
+.mypy_cache
+**/__pycache__
+**/*.py[cod]
+
+# Local frontend dependencies and generated output
+node_modules
+frontend/node_modules
+frontend/dist
+frontend/.vite
+
+# Local configuration and generated artifacts
+.env
+.env.*
+!.env.example
+htmlcov
+.coverage*
+output
+model_output
+plots
+data/raw
+*.zip
+*.pkl
+*.joblib
+
+# OS noise
+.DS_Store
+Thumbs.db

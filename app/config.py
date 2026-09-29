@@ -36,8 +36,13 @@ class Settings(BaseSettings):
     default_test_size: float = 0.2
     default_cv_folds: int = 5
 
-    max_generate_rows: int = 2_000_000
+    max_generate_rows: int = 500_000
     max_upload_bytes: int = 500 * 1024 * 1024
+
+    auth_email: str = ""
+    auth_password: str = ""
+    auth_session_secret: str = ""
+    auth_session_hours: int = 12
 
 
 @lru_cache

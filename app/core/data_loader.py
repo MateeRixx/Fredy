@@ -133,7 +133,7 @@ def generate_ulb_format_synthetic(
         DataFrame with ULB-format columns: Time, V1-V28, Amount, Class.
     """
     rng = np.random.default_rng(seed)
-    n_fraud = max(int(n_rows * fraud_rate), 10)
+    n_fraud = min(n_rows - 1, max(int(round(n_rows * fraud_rate)), 1))
     n_legit = n_rows - n_fraud
 
     # Build all data as numpy arrays first (memory efficient)
