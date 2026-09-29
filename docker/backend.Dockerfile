@@ -1,4 +1,4 @@
-# Fraud Command — backend image
+# Fredy — backend image
 # Multi-stage: install deps, then run the FastAPI app with uvicorn.
 FROM python:3.13-slim AS base
 

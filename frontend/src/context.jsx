@@ -4,7 +4,7 @@ import api from './api'
 const AppContext = createContext(null)
 
 function initialTheme() {
-  const saved = window.localStorage.getItem('fraud-command-theme')
+  const saved = window.localStorage.getItem('fredy-theme')
   if (saved === 'light' || saved === 'dark') return saved
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
 }
@@ -18,7 +18,7 @@ export function AppProvider({ children }) {
     document.documentElement.dataset.theme = theme
     document.documentElement.classList.toggle('dark', theme === 'dark')
     document.documentElement.style.colorScheme = theme
-    window.localStorage.setItem('fraud-command-theme', theme)
+    window.localStorage.setItem('fredy-theme', theme)
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       'content',
       theme === 'dark' ? '#05070b' : '#f1f5f9',

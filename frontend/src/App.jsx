@@ -20,8 +20,8 @@ export default function App() {
     const handleUnauthorized = () => {
       setSession({ loading: false, authenticated: false, email: null })
     }
-    window.addEventListener('fraud-command:unauthorized', handleUnauthorized)
-    return () => window.removeEventListener('fraud-command:unauthorized', handleUnauthorized)
+    window.addEventListener('fredy:unauthorized', handleUnauthorized)
+    return () => window.removeEventListener('fredy:unauthorized', handleUnauthorized)
   }, [])
 
   const logout = async () => {

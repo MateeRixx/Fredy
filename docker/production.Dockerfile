@@ -1,4 +1,4 @@
-# Fraud Command — single-service production image
+# Fredy — single-service production image
 # One image builds the React UI and serves it from the FastAPI backend.
 # Suitable for Render / Railway / Fly.io free-tier single services.
 # Stage 1: build frontend

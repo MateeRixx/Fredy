@@ -1,6 +1,6 @@
-# Fraud Command
+# Fredy
 
-Fraud Command is a local demo app that helps you spot suspicious financial
+Fredy is a local demo app that helps you spot suspicious financial
 transactions. It gives you one simple workspace to create sample data, train a
 fraud model, score a transaction, and review alerts.
 
@@ -90,9 +90,6 @@ Run the automated tests:
 ```powershell
 .venv\Scripts\python.exe -m pytest -q
 ```
-
-Useful technical documents are in [docs](docs/), including the API reference,
-deployment notes, architecture, and a guided demo.
 
 ## Keep your login safe
 

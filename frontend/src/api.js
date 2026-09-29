@@ -41,7 +41,7 @@ async function request(path, options = {}) {
   })
   if (!res.ok) {
     if (res.status === 401 && !path.startsWith('/auth/')) {
-      window.dispatchEvent(new Event('fraud-command:unauthorized'))
+      window.dispatchEvent(new Event('fredy:unauthorized'))
     }
     let detail = `HTTP ${res.status}`
     try {

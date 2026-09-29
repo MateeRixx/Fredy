@@ -20,7 +20,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_name: str = "Fraud Command"
+    app_name: str = "Fredy"
     app_version: str = "2.0.0"
     environment: str = "development"  # development | staging | production
 

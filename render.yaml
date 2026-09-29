@@ -3,7 +3,7 @@
 # Free tier: 512MB RAM, sleeps on idle (cold start ~30-60s on first visit).
 services:
   - type: web
-    name: fraud-command
+    name: fredy
     runtime: docker
     plan: free
     dockerfilePath: docker/production.Dockerfile
@@ -16,3 +16,9 @@ services:
         value: json
       - key: LOG_LEVEL
         value: INFO
+      - key: AUTH_EMAIL
+        sync: false
+      - key: AUTH_PASSWORD
+        sync: false
+      - key: AUTH_SESSION_SECRET
+        generateValue: true

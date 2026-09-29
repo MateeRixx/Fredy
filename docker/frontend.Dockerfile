@@ -1,4 +1,4 @@
-# Fraud Command — frontend build stage
+# Fredy — frontend build stage
 # Produces static assets served by nginx / the FastAPI backend.
 FROM node:22-alpine AS build
 

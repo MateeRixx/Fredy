@@ -1,7 +1,7 @@
 .PHONY: help install run dev build frontend test lint clean docker-build docker-up docker-down
 
 help:
-	@echo "Fraud Command — dev workflow"
+	@echo "Fredy — dev workflow"
 	@echo ""
 	@echo "  make install      Create venv + install Python deps"
 	@echo "  make run          Start API server (http://127.0.0.1:8000)"

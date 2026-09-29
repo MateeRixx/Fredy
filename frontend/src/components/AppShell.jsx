@@ -121,7 +121,7 @@ function BrandLockup() {
         <BrandMark size={15} />
       </div>
       <div className="leading-tight">
-        <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">FRAUD COMMAND</div>
+        <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">FREDY</div>
         <div className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Transaction Intel</div>
       </div>
     </div>

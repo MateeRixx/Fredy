@@ -1,4 +1,4 @@
-"""Package setup for fraud-detection-system."""
+"""Package setup for Fredy."""
 
 from setuptools import find_packages, setup
 
@@ -11,9 +11,9 @@ with open("requirements.txt", encoding="utf-8") as f:
     ]
 
 setup(
-    name="fraud-detection-system",
+    name="fredy",
     version="2.0.0",
-    description="ML-based financial fraud detection system combining supervised and unsupervised learning",
+    description="Financial transaction risk-detection demo",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),

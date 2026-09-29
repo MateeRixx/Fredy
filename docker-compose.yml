@@ -1,12 +1,12 @@
-name: fraud-detection-system
+name: fredy
 
 services:
   backend:
     build:
       context: .
       dockerfile: docker/backend.Dockerfile
-    image: fraud-command-backend:latest
-    container_name: fraud-backend
+    image: fredy-backend:latest
+    container_name: fredy-backend
     env_file:
       - .env
     environment:
@@ -28,8 +28,8 @@ services:
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile
-    image: fraud-command-frontend:latest
-    container_name: fraud-frontend
+    image: fredy-frontend:latest
+    container_name: fredy-frontend
     ports:
       - "80:80"
     depends_on:

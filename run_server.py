@@ -1,7 +1,7 @@
-﻿"""Start the Fraud Command web console.
+"""Start the Fredy web console.
 
 Runs the FastAPI backend on http://127.0.0.1:8000 and serves the
-built React UI. The UI must be built first (frontend/dist) — see README.
+built React UI. Build the UI first with ``npm.cmd --prefix frontend run build``.
 """
 
 from __future__ import annotations

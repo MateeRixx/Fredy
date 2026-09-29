@@ -35,7 +35,7 @@ export default function Login({ onAuthenticated }) {
         <div className="flex items-center gap-3">
           <Mark />
           <div>
-            <div className="text-xs font-semibold tracking-[0.16em] text-zinc-100">FRAUD COMMAND</div>
+            <div className="text-xs font-semibold tracking-[0.16em] text-zinc-100">FREDY</div>
             <div className="text-[0.6rem] uppercase tracking-[0.2em] text-zinc-600">Transaction intelligence</div>
           </div>
         </div>
